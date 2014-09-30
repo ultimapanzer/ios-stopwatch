@@ -14,9 +14,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var timerButton: UIButton!
     
     @IBAction func resetButton(sender: UIButton) {
+        hundredth = 0
         seconds = 0
         minutes = 0
-        hours = 0
         
         timer?.invalidate()
         timerRunning = false
@@ -24,9 +24,9 @@ class ViewController: UIViewController {
         formatTime()
     }
 
+    var hundredth = 0
     var seconds = 0
     var minutes = 0
-    var hours = 0
     var timerRunning = false
     
     var timer: NSTimer?
@@ -35,7 +35,7 @@ class ViewController: UIViewController {
         timerRunning = !timerRunning
         
         if timerRunning {
-            timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("incSeconds"), userInfo: nil, repeats: true)
+            timer = NSTimer.scheduledTimerWithTimeInterval(0.01, target: self, selector: Selector("incrementTime"), userInfo: nil, repeats: true)
         } else {
             timer?.invalidate()
         }
@@ -43,25 +43,27 @@ class ViewController: UIViewController {
         setTimerText()
     }
     
-    func incSeconds() {
-        seconds++
+    func incrementTime() {
+        hundredth++
         formatTime()
     }
     
     func formatTime() {
+        if hundredth >= 100 {
+            seconds++
+            hundredth %= hundredth
+        }
+        
         if seconds >= 60 {
             minutes++
             seconds %= seconds
         }
-        if minutes >= 60 {
-            hours++
-            minutes %= minutes
-        }
 
         let fMin = formatDoubleDigits(minutes)
         let fSec = formatDoubleDigits(seconds)
+        let fHundredth = formatDoubleDigits(hundredth)
         
-        time.text = "\(hours):\(fMin):\(fSec)"
+        time.text = "\(fMin):\(fSec).\(fHundredth)"
     }
     
     func formatDoubleDigits(unit: Int) -> String {
